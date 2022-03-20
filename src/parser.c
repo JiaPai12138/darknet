@@ -1294,6 +1294,7 @@ void parse_net_options(list *options, network *net)
                 int step = atoi(l);
                 l = strchr(l, ',') + 1;
                 steps[i] = step;
+                printf("i=%d step=%d", i, step);
                 scales[i] = scale;
                 seq_scales[i] = sequence_scale;
             }
