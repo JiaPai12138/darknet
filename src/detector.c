@@ -303,6 +303,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             // net.steps = 1;
             printf(net.steps);
             printf("\n Should train %d iterations", calc_map_for_each*120);
+            net.max_batches = calc_map_for_each*120;
         }
         calc_map_for_each = fmax(calc_map_for_each, 100);
         int next_map_calc = iter_map + calc_map_for_each;
