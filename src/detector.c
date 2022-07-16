@@ -1015,7 +1015,7 @@ float validate_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
     int i = 0;
     int t;
 
-    const float thresh = .005;
+    const float thresh = .3;
     const float nms = .45;
     //const float iou_thresh = 0.5;
 
