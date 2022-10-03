@@ -382,7 +382,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             // mean_average_precision = (map60+map70+map75+map85) / 4;
 
             printf("\n mean_average_precision (mAP@%0.2f) = %f \n", iou_thresh, mean_average_precision);
-            if (mean_average_precision > best_map) {
+            if (mean_average_precision >= best_map) {
                 best_map = mean_average_precision;
                 printf("New best mAP!\n");
                 char buff[256];
