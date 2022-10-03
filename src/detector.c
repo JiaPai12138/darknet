@@ -305,6 +305,11 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             printf("\n Should train %d iterations", calc_map_for_each*200);
             net.max_batches = calc_map_for_each*200;
         }
+
+        if (net.max_batches - iteration < calc_map_for_each*10) {
+            net.mixup = 0;
+        }
+
         calc_map_for_each = fmax(calc_map_for_each, 100);
         int next_map_calc = iter_map + calc_map_for_each;
         next_map_calc = fmax(next_map_calc, net.burn_in);
