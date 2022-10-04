@@ -857,9 +857,9 @@ float rand_uniform(float min, float max)
 
 float rand_scale(float s)
 {
-    float scale = rand_uniform_strong(0.5, 1.5);
+    float scale = rand_uniform_strong(1, s);
     if(random_gen()%2) return scale;
-    return scale;  // 1./
+    return 1. / scale;
 }
 
 float **one_hot_encode(float *a, int n, int k)
