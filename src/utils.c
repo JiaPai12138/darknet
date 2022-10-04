@@ -857,7 +857,7 @@ float rand_uniform(float min, float max)
 
 float rand_scale(float s)
 {
-    float scale = rand_uniform_strong(1.16, s);
+    float scale = rand_uniform_strong(0.5, 1.5);
     if(random_gen()%2) return scale;
     return scale;  // 1./
 }
