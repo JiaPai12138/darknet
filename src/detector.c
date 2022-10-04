@@ -299,19 +299,20 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         const int iteration = get_current_iteration(net);
         //i = get_current_batch(net);
 
-        int calc_map_for_each = 4 * train_images_num / (net.batch * net.subdivisions);  // calculate mAP for each 4 Epoch
-        // if (net.max_batches != calc_map_for_each*200) {  // total 200
-            // net.steps = 1;
-            // printf(net.steps);
-            // printf("\n Should train %d iterations", calc_map_for_each*200);
-            // net.max_batches = calc_map_for_each*200;
-        // }
+        int calc_map_for_each = train_images_num / (net.batch * net.subdivisions);  // calculate mAP for each 4 Epoch
 
-        if (net.max_batches - iteration < net.max_batches / 20) {
-            net.mixup = 0;
+        if (net.max_batches != calc_map_for_each*100) {  // total 100
+            printf("\n Should train %d iterations", calc_map_for_each*200);
+            net.max_batches = calc_map_for_each*100;
         }
 
         calc_map_for_each = fmax(calc_map_for_each, 100);
+
+        if (net.max_batches - iteration < net.max_batches / 20) {
+            net.mixup = 0;
+            calc_map_for_each = net.max_batches / 200;
+        }
+
         int next_map_calc = iter_map + calc_map_for_each;
         next_map_calc = fmax(next_map_calc, net.burn_in);
         //next_map_calc = fmax(next_map_calc, 400);
