@@ -386,8 +386,9 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             float map90 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.90, 0, net.letter_box, &net_map);
             float map95 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.95, 0, net.letter_box, &net_map);
             mean_average_precision = (map_50+map55+map60+map65+map70+map75+map80+map85+map90+map95) / 10;
+            float simplemAP = map70*0.15 + map75*0.85;
 
-            printf("\n mean_average_precision (mAP@%0.2f) = %f \n", iou_thresh, mean_average_precision);
+            printf("\n mean_average_precision simple calculation (mAP@0.5~0.95) = %f \n", simplemAP);
             if (mean_average_precision >= best_map) {
                 best_map = mean_average_precision;
                 printf("New best mAP!\n");
