@@ -302,7 +302,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         int calc_map_for_each = train_images_num / (net.batch * net.subdivisions);  // calculate mAP for each 4 Epoch
 
         if (net.max_batches != calc_map_for_each*100) {  // total 100
-            printf("\n Should train %d iterations", calc_map_for_each*200);
+            printf("\n Should train %d iterations", calc_map_for_each*100);
             net.max_batches = calc_map_for_each*100;
         }
 
