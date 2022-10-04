@@ -299,15 +299,15 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         const int iteration = get_current_iteration(net);
         //i = get_current_batch(net);
 
-        int calc_map_for_each = train_images_num / (net.batch * net.subdivisions);  // calculate mAP for each Epoch
-        if (net.max_batches != calc_map_for_each*200) {  // total 200
+        int calc_map_for_each = train_images_num / (net.batch * net.subdivisions * 4);  // calculate mAP for each 4 Epoch
+        // if (net.max_batches != calc_map_for_each*200) {  // total 200
             // net.steps = 1;
-            printf(net.steps);
-            printf("\n Should train %d iterations", calc_map_for_each*200);
-            net.max_batches = calc_map_for_each*200;
-        }
+            // printf(net.steps);
+            // printf("\n Should train %d iterations", calc_map_for_each*200);
+            // net.max_batches = calc_map_for_each*200;
+        // }
 
-        if (net.max_batches - iteration < calc_map_for_each*10) {
+        if (net.max_batches - iteration < net.max_batches / 20) {
             net.mixup = 0;
         }
 
@@ -376,19 +376,20 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
 
             iter_map = iteration;
             map_50 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.50, 0, net.letter_box, &net_map);// &net_combined);
-            float map55 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.55, 0, net.letter_box, &net_map);
+            // float map55 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.55, 0, net.letter_box, &net_map);
             float map60 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.6, 0, net.letter_box, &net_map);
-            float map65 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.65, 0, net.letter_box, &net_map);
+            // float map65 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.65, 0, net.letter_box, &net_map);
             float map70 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.7, 0, net.letter_box, &net_map);
             float map75 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.75, 0, net.letter_box, &net_map);
-            float map80 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.80, 0, net.letter_box, &net_map);
+            // float map80 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.80, 0, net.letter_box, &net_map);
             float map85 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.85, 0, net.letter_box, &net_map);
-            float map90 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.90, 0, net.letter_box, &net_map);
-            float map95 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.95, 0, net.letter_box, &net_map);
-            mean_average_precision = (map_50+map55+map60+map65+map70+map75+map80+map85+map90+map95) / 10;
+            // float map90 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.90, 0, net.letter_box, &net_map);
+            // float map95 = validate_detector_map(datacfg, cfgfile, weightfile, thresh, 0.95, 0, net.letter_box, &net_map);
+            // mean_average_precision = (map_50+map55+map60+map65+map70+map75+map80+map85+map90+map95) / 10;
+            mean_average_precision = (map60+map70+map75+map85) / 4;
             float simplemAP = map70*0.15 + map75*0.85;
 
-            printf("\n mean_average_precision simple calculation (mAP@0.5~0.95) = %f \n", simplemAP);
+            printf("\n mean_average_precision simple calculation (mAP@0.5~0.95) = %f or %f \n\n\n", simplemAP, mean_average_precision);
             if (mean_average_precision >= best_map) {
                 best_map = mean_average_precision;
                 printf("New best mAP!\n");
