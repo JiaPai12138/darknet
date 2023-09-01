@@ -30,6 +30,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     char *valid_images = option_find_str(options, "valid", train_images);
     char *backup_directory = option_find_str(options, "backup", "/backup/");
 
+
     network net_map;
     if (calc_map) {
         FILE* valid_file = fopen(valid_images, "r");
@@ -97,6 +98,11 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     else if (actual_batch_size < 8) {
         printf("\n Warning: You set batch=%d lower than 64! It is recommended to set batch=64 subdivision=64 \n", actual_batch_size);
     }
+
+    int save_after_iterations = option_find_int(options, "saveweights", (net.max_batches < 10000) ? 1000 : 10000 );  // configure when to write weights. Very useful for smaller datasets!
+	int save_last_weights_after = option_find_int(options, "savelast", 100);
+    printf("Weights are saved after: %d iterations. Last weights (*_last.weight) are stored every %d iterations. \n", save_after_iterations, save_last_weights_after );
+
 
     int imgs = net.batch * net.subdivisions * ngpus;
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net.learning_rate, net.momentum, net.decay);
@@ -325,14 +331,13 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             if (mean_average_precision > 0) printf("\n Last accuracy mAP@0.5 = %2.2f %%, map@[.5:.95] = %2.2f %%, best = %2.2f %% ", map_50 * 100, mean_average_precision * 100, best_map * 100);  // iou_thresh,
         }
 
-        #ifndef WIN32
+        printf("\033[H\033[J");
         if (mean_average_precision > 0.0) {
-            printf("\033]2;%d/%d: loss=%0.1f map=%0.2f best=%0.2f hours left=%0.1f\007", iteration, net.max_batches, loss, mean_average_precision, best_map, avg_time);
+            printf("%d/%d: loss=%0.1f map=%0.2f best=%0.2f hours left=%0.1f\007", iteration, net.max_batches, loss, mean_average_precision, best_map, avg_time);
         }
         else {
-            printf("\033]2;%d/%d: loss=%0.1f hours left=%0.1f\007", iteration, net.max_batches, loss, avg_time);
+            printf("%d/%d: loss=%0.1f hours left=%0.1f\007", iteration, net.max_batches, loss, avg_time);
         }
-        #endif
 
         if (net.cudnn_half) {
             if (iteration < net.burn_in * 3) fprintf(stderr, "\n Tensor Cores are disabled until the first %d iterations are reached.\n", 3 * net.burn_in);
@@ -426,10 +431,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         draw_train_loss(windows_name, img, img_size, avg_loss, max_img_loss, iteration, net.max_batches, mean_average_precision, draw_precision, "mAP%", avg_contrastive_acc / 100, dont_show, mjpeg_port, avg_time);
 #endif    // OPENCV
 
-        //if (i % 1000 == 0 || (i < 1000 && i % 100 == 0)) {
-        //if (i % 100 == 0) {
-        if ((iteration >= (iter_save + 10000) || iteration % 10000 == 0) ||
-            (iteration >= (iter_save + 1000) || iteration % 1000 == 0) && net.max_batches < 10000)
+        if ( (iteration >= (iter_save + save_after_iterations) || iteration % save_after_iterations == 0) )
         {
             iter_save = iteration;
 #ifdef GPU
@@ -440,7 +442,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             save_weights(net, buff);
         }
 
-        if (iteration >= (iter_save_last + 100) || (iteration % 100 == 0 && iteration > 1)) {
+        if ( (save_after_iterations > save_last_weights_after) && (iteration >= (iter_save_last + save_last_weights_after) || (iteration % save_last_weights_after == 0 && iteration > 1))) {
             iter_save_last = iteration;
 #ifdef GPU
             if (ngpus != 1) sync_nets(nets, ngpus, 0);

@@ -36,6 +36,9 @@ if ($IsWindowsPowerShell -or $IsWindows) {
   $ExecutableSuffix = ".exe"
 }
 
+$64bitPwsh = $([Environment]::Is64BitProcess)
+$64bitOS = $([Environment]::Is64BitOperatingSystem)
+
 Push-Location $PSScriptRoot
 $GIT_EXE = Get-Command "git" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Definition
 if ($GIT_EXE) {
@@ -52,8 +55,8 @@ else {
 }
 Pop-Location
 
-$cuda_version_full = "11.7.0"
-$cuda_version_short = "11.7"
+$cuda_version_full = "12.2.0"
+$cuda_version_short = "12.2"
 $cuda_version_full_dashed = $cuda_version_full.replace('.', '-')
 $cuda_version_short_dashed = $cuda_version_short.replace('.', '-')
 
@@ -80,7 +83,7 @@ function getLatestVisualStudioWithDesktopWorkloadPath([bool]$required = $true) {
       $installationPath = $instance.InstallationPath -replace "\\$" # Remove potential trailing backslash
     }
     if (!$installationPath) {
-      Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also partial installations" -ForegroundColor Yellow
+      #Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also partial installations" -ForegroundColor Yellow
       $output = & $vswhereExe -products * -latest -format xml
       [xml]$asXml = $output
       foreach ($instance in $asXml.instances.instance) {
@@ -88,7 +91,7 @@ function getLatestVisualStudioWithDesktopWorkloadPath([bool]$required = $true) {
       }
     }
     if (!$installationPath) {
-      Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also pre-release installations" -ForegroundColor Yellow
+      #Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also pre-release installations" -ForegroundColor Yellow
       $output = & $vswhereExe -prerelease -products * -latest -format xml
       [xml]$asXml = $output
       foreach ($instance in $asXml.instances.instance) {
@@ -127,7 +130,7 @@ function getLatestVisualStudioWithDesktopWorkloadVersion([bool]$required = $true
       $installationVersion = $instance.InstallationVersion
     }
     if (!$installationVersion) {
-      Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also partial installations" -ForegroundColor Yellow
+      #Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also partial installations" -ForegroundColor Yellow
       $output = & $vswhereExe -products * -latest -format xml
       [xml]$asXml = $output
       foreach ($instance in $asXml.instances.instance) {
@@ -135,7 +138,7 @@ function getLatestVisualStudioWithDesktopWorkloadVersion([bool]$required = $true
       }
     }
     if (!$installationVersion) {
-      Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also pre-release installations" -ForegroundColor Yellow
+      #Write-Host "Warning: no full Visual Studio setup has been found, extending search to include also pre-release installations" -ForegroundColor Yellow
       $output = & $vswhereExe -prerelease -products * -latest -format xml
       [xml]$asXml = $output
       foreach ($instance in $asXml.instances.instance) {
@@ -324,6 +327,8 @@ Function MyThrow ($Message) {
 Export-ModuleMember -Variable utils_psm1_version
 Export-ModuleMember -Variable IsWindowsPowerShell
 Export-ModuleMember -Variable IsInGitSubmodule
+Export-ModuleMember -Variable 64bitPwsh
+Export-ModuleMember -Variable 64bitOS
 Export-ModuleMember -Variable cuda_version_full
 Export-ModuleMember -Variable cuda_version_short
 Export-ModuleMember -Variable cuda_version_full_dashed
@@ -335,4 +340,3 @@ Export-ModuleMember -Function DownloadNinja
 Export-ModuleMember -Function DownloadAria2
 Export-ModuleMember -Function Download7Zip
 Export-ModuleMember -Function MyThrow
-Export-ModuleMember -Function CopyTexFile

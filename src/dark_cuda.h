@@ -25,6 +25,18 @@ extern int gpu_index;
 #include <curand.h>
 #include <cublas_v2.h>
 #include <cuda_runtime_api.h>
+
+#ifdef CUDA_OPENGL_INTEGRATION
+// On Windows, we need to include <windows.h> before
+// including OpenGL headers or else we will get various
+// compiler errors due to missing macros.
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif // _WIN32
+
+#include <cuda_gl_interop.h>
+#endif // CUDA_OPENGL_INTEGRATION
 //#include <driver_types.h>
 
 #ifdef CUDNN
@@ -68,7 +80,7 @@ extern "C" {
     float *cuda_make_array(float *x, size_t n);
     void **cuda_make_array_pointers(void **x, size_t n);
     int *cuda_make_int_array(size_t n);
-	int *cuda_make_int_array_new_api(int *x, size_t n);
+    int *cuda_make_int_array_new_api(int *x, size_t n);
     void cuda_push_array(float *x_gpu, float *x, size_t n);
     //LIB_API void cuda_pull_array(float *x_gpu, float *x, size_t n);
     //LIB_API void cuda_set_device(int n);
